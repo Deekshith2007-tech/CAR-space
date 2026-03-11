@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Personal Details - Parking Space Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h1 {
+            color: #4e73df;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .slot-info {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid #4e73df;
+            font-weight: bold;
+            color: #4e73df;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #4e73df;
+            box-shadow: 0 0 5px rgba(78, 115, 223, 0.3);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4e73df;
+            box-shadow: 0 0 5px rgba(78, 115, 223, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .submit-btn,
+        .cancel-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-btn {
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            color: white;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 5px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        .cancel-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .cancel-btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            color: #28a745;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="form-container">
+    <div class="form-header">
+        <h1>🚗 Book Parking Slot</h1>
+        <p>Please enter your personal details</p>
+    </div>
+
+    <div class="slot-info">
+        Selected Slot: <span id="selectedSlot">Loading...</span>
+    </div>
+
+    <div class="error" id="errorMessage"></div>
+    <div class="success" id="successMessage"></div>
+
+    <form id="bookingForm" onsubmit="handleBooking(event)">
+        <div class="form-group">
+            <label for="fullName">Full Name *</label>
+            <input 
+                type="text" 
+                id="fullName" 
+                placeholder="Enter your full name" 
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input 
+                type="email" 
+                id="email" 
+                placeholder="Enter your email" 
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input 
+                type="tel" 
+                id="phone" 
+                placeholder="Enter your phone number" 
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="carModel">Car Model *</label>
+            <input 
+                type="text" 
+                id="carModel" 
+                placeholder="Enter your car model" 
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="licensePlate">License Plate *</label>
+            <input 
+                type="text" 
+                id="licensePlate" 
+                placeholder="Enter your license plate" 
+                required
+                style="text-transform: uppercase;"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="bookingDate">Booking Date *</label>
+            <input 
+                type="date" 
+                id="bookingDate" 
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="duration">Duration (Hours) *</label>
+            <select id="duration" required>
+                <option value="">Select duration</option>
+                <option value="1">1 Hour</option>
+                <option value="2">2 Hours</option>
+                <option value="3">3 Hours</option>
+                <option value="4">4 Hours</option>
+                <option value="8">8 Hours</option>
+                <option value="24">24 Hours</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="remarks">Remarks / Special Requests</label>
+            <textarea 
+                id="remarks" 
+                placeholder="Any special requests or remarks (optional)"
+            ></textarea>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="submit-btn">Confirm Booking</button>
+            <button type="button" class="cancel-btn" onclick="cancelBooking()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Check authentication
+    function checkAuthentication() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        
+        if (!isLoggedIn) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        return true;
+    }
+
+    // Initialize form
+    window.addEventListener('load', function() {
+        if (!checkAuthentication()) return;
+
+        // Get selected slot from URL params
+        const params = new URLSearchParams(window.location.search);
+        const slotNumber = params.get('slot');
+
+        if (!slotNumber) {
+            showError('Invalid slot selection. Redirecting...');
+            setTimeout(() => window.location.href = 'index.html', 2000);
+            return;
+        }
+
+        document.getElementById('selectedSlot').innerText = 'Slot ' + slotNumber;
+
+        // Set today's date as minimum booking date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').min = today;
+        document.getElementById('bookingDate').value = today;
+    });
+
+    function handleBooking(event) {
+        event.preventDefault();
+
+        const params = new URLSearchParams(window.location.search);
+        const slotNumber = params.get('slot');
+
+        const bookingData = {
+            slot: slotNumber,
+            fullName: document.getElementById('fullName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            carModel: document.getElementById('carModel').value,
+            licensePlate: document.getElementById('licensePlate').value.toUpperCase(),
+            bookingDate: document.getElementById('bookingDate').value,
+            duration: document.getElementById('duration').value,
+            remarks: document.getElementById('remarks').value,
+            bookedAt: new Date().toLocaleString()
+        };
+
+        // Store booking in localStorage
+        let bookings = localStorage.getItem('parkingBookings');
+        bookings = bookings ? JSON.parse(bookings) : [];
+        
+        bookings.push(bookingData);
+        localStorage.setItem('parkingBookings', JSON.stringify(bookings));
+
+        // Store booked slot info
+        let bookedSlots = localStorage.getItem('bookedSlots');
+        bookedSlots = bookedSlots ? JSON.parse(bookedSlots) : {};
+        bookedSlots[slotNumber] = bookingData;
+        localStorage.setItem('bookedSlots', JSON.stringify(bookedSlots));
+
+        showSuccess('Booking confirmed! Redirecting to dashboard...');
+        
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
+    }
+
+    function cancelBooking() {
+        if (confirm('Are you sure you want to cancel this booking?')) {
+            window.location.href = 'index.html';
+        }
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.innerText = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+        const successDiv = document.getElementById('successMessage');
+        successDiv.innerText = message;
+        successDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

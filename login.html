@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Parking Space Finder System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #4e73df;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #4e73df;
+            box-shadow: 0 0 5px rgba(78, 115, 223, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 5px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            color: #28a745;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .demo-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            border: 1px solid #e0e7ff;
+        }
+
+        .demo-info strong {
+            color: #4e73df;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-container">
+    <div class="login-header">
+        <h1>🚗 Parking System</h1>
+        <p>Login to access the parking dashboard</p>
+    </div>
+
+    <div class="error" id="errorMessage"></div>
+    <div class="success" id="successMessage"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input 
+                type="text" 
+                id="username" 
+                placeholder="Enter your username" 
+                required
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input 
+                type="password" 
+                id="password" 
+                placeholder="Enter your password" 
+                required
+                autocomplete="off"
+            >
+        </div>
+
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
+
+    <div class="demo-info">
+        <p><strong>Demo Credentials:</strong></p>
+        <p>Username: <strong>admin</strong></p>
+        <p>Password: <strong>password123</strong></p>
+    </div>
+</div>
+
+<script>
+    // Check if user is already logged in
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        window.location.href = 'index.html';
+    }
+
+    function handleLogin(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+
+        // Clear previous messages
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+
+        // Simple authentication (in production, this should verify against a backend)
+        if (username === 'admin' && password === 'password123') {
+            // Store login info in localStorage
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', username);
+            localStorage.setItem('loginTime', new Date().toLocaleString());
+
+            successDiv.innerText = 'Login successful! Redirecting...';
+            successDiv.style.display = 'block';
+
+            // Redirect to dashboard after 1 second
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        } else {
+            errorDiv.innerText = 'Invalid username or password. Please try again.';
+            errorDiv.style.display = 'block';
+            document.getElementById('password').value = '';
+        }
+    }
+
+    // Allow Enter key to submit the form
+    document.getElementById('loginForm').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            handleLogin(event);
+        }
+    });
+</script>
+
+</body>
+</html>

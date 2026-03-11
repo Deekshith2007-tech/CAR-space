@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parking Space Finder System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: white;
+            padding: 20px;
+        }
+
+        .dashboard {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .slots {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .slot {
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .available {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .booked {
+            background-color: #808080;
+            color: white;
+        }
+
+        .slot:hover {
+            transform: scale(1.05);
+        }
+
+        .info {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4e73df;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2e59d9;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        .header-top {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-info span {
+            font-weight: bold;
+        }
+
+        .button-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .button-box button {
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-book {
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            color: white;
+        }
+
+        .btn-book:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 5px 15px rgba(78, 115, 223, 0.4);
+        }
+
+        .btn-bookings {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-bookings:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0px 5px 15px rgba(23, 162, 184, 0.4);
+        }
+
+        .btn-reset {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background-color: #ffb300;
+            transform: translateY(-2px);
+            box-shadow: 0px 5px 15px rgba(255, 193, 7, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .button-box {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🚗 Parking Space Finder System</h1>
+
+<div class="dashboard">
+
+    <div class="header-top">
+        <div class="user-info">
+            <span>👤 User: <span id="currentUser">Loading...</span></span>
+            <span>🕐 Login Time: <span id="loginTime">Loading...</span></span>
+        </div>
+    </div>
+
+    <h2>Available Parking Slots</h2>
+
+    <div class="slots" id="slotsContainer"></div>
+
+    <div class="button-box">
+        <button class="btn-book" onclick="bookNewSlot()">📋 Book New Slot</button>
+        <button class="btn-bookings" onclick="viewMyBookings()">🎫 My Bookings</button>
+        <button class="btn-reset" onclick="resetSlots()">🔄 Reset All Slots</button>
+        <button class="logout-btn" onclick="logout()" style="grid-column: span 1;">🚪 Logout</button>
+    </div>
+
+    <div class="info">
+        <p>Total Slots: <span id="totalSlots"></span></p>
+        <p>Available Slots: <span id="availableSlots"></span></p>
+        <p>Booked Slots: <span id="bookedSlots"></span></p>
+    </div>
+
+</div>
+
+<script>
+    // Check if user is logged in
+    function checkAuthentication() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        
+        if (!isLoggedIn) {
+            // Redirect to login page if not logged in
+            window.location.href = 'login.html';
+            return false;
+        }
+        
+        // Display user information
+        const username = localStorage.getItem('username') || 'User';
+        const loginTime = localStorage.getItem('loginTime') || 'Unknown';
+        
+        document.getElementById('currentUser').innerText = username;
+        document.getElementById('loginTime').innerText = loginTime;
+        
+        return true;
+    }
+
+    function logout() {
+        // Clear login session
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('username');
+        localStorage.removeItem('loginTime');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+    }
+
+    function bookNewSlot() {
+        // Get available slots
+        const bookedSlots = JSON.parse(localStorage.getItem('bookedSlots') || '{}');
+        const availableSlots = [];
+
+        for (let i = 1; i <= 15; i++) {
+            if (!bookedSlots[i]) {
+                availableSlots.push(i);
+            }
+        }
+
+        if (availableSlots.length === 0) {
+            alert('Sorry! All slots are currently booked. Please try again later.');
+            return;
+        }
+
+        // Show available slots
+        let message = 'Available Slots:\n\n';
+        availableSlots.forEach(slot => {
+            message += 'Slot ' + slot + '\n';
+        });
+        message += '\nEnter the slot number you want to book:';
+
+        const slotNumber = prompt(message);
+
+        if (slotNumber && availableSlots.includes(parseInt(slotNumber))) {
+            // Redirect to personal details form with selected slot
+            window.location.href = 'personal-details.html?slot=' + parseInt(slotNumber);
+        } else if (slotNumber) {
+            alert('Invalid slot number or slot is already booked!');
+        }
+    }
+
+    function viewMyBookings() {
+        const bookings = JSON.parse(localStorage.getItem('parkingBookings') || '[]');
+        const username = localStorage.getItem('username') || 'User';
+
+        if (bookings.length === 0) {
+            alert('You have no bookings yet.\n\nClick "Book New Slot" to make a reservation.');
+            return;
+        }
+
+        let message = '🎫 My Bookings for ' + username + '\n\n' + '='.repeat(40) + '\n\n';
+
+        bookings.forEach((booking, index) => {
+            message += 'Booking #' + (index + 1) + '\n';
+            message += '─'.repeat(40) + '\n';
+            message += 'Slot: ' + booking.slot + '\n';
+            message += 'Name: ' + booking.fullName + '\n';
+            message += 'Email: ' + booking.email + '\n';
+            message += 'Phone: ' + booking.phone + '\n';
+            message += 'Car: ' + booking.carModel + '\n';
+            message += 'License Plate: ' + booking.licensePlate + '\n';
+            message += 'Date: ' + booking.bookingDate + '\n';
+            message += 'Duration: ' + booking.duration + ' hours\n';
+            message += 'Booked At: ' + booking.bookedAt + '\n\n';
+        });
+
+        // Since alert has limitations, we'll create a modal alternative
+        showBookingsModal(bookings, username);
+    }
+
+    function showBookingsModal(bookings, username) {
+        let content = '<div style="text-align: left; max-height: 400px; overflow-y: auto;">';
+        content += '<h3 style="color: #4e73df; text-align: center;">🎫 My Bookings</h3>';
+        
+        bookings.forEach((booking, index) => {
+            content += '<div style="background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 5px; border-left: 4px solid #4e73df;">';
+            content += '<strong>Booking #' + (index + 1) + ' - Slot ' + booking.slot + '</strong><br>';
+            content += '<small>' + booking.fullName + ' (' + booking.licensePlate + ')<br>';
+            content += booking.bookingDate + ' for ' + booking.duration + ' hours<br>';
+            content += 'Booked: ' + booking.bookedAt + '</small>';
+            content += '</div>';
+        });
+
+        content += '</div>';
+
+        // Create a simple alert with formatted information
+        let fullMessage = 'BOOKINGS FOR: ' + username + '\n\n';
+        bookings.forEach((booking, index) => {
+            fullMessage += 'Booking #' + (index + 1) + '\n';
+            fullMessage += 'Slot: ' + booking.slot + ' | Date: ' + booking.bookingDate + '\n';
+            fullMessage += 'Name: ' + booking.fullName + '\n';
+            fullMessage += 'Car: ' + booking.carModel + ' (' + booking.licensePlate + ')\n';
+            fullMessage += 'Duration: ' + booking.duration + ' hours\n\n';
+        });
+
+        alert(fullMessage);
+    }
+
+    // Run authentication check when page loads
+    window.addEventListener('load', function() {
+        checkAuthentication();
+        createSlots();
+    });
+
+    const totalSlots = 15;
+    let slots = [];
+
+    function createSlots() {
+        const container = document.getElementById("slotsContainer");
+        container.innerHTML = "";
+        slots = [];
+
+        // Load previously booked slots
+        const bookedSlots = JSON.parse(localStorage.getItem('bookedSlots') || '{}');
+
+        for (let i = 1; i <= totalSlots; i++) {
+            const slot = document.createElement("div");
+            slot.classList.add("slot");
+            slot.innerText = "Slot " + i;
+            slot.dataset.slotId = i;
+
+            // Check if slot was previously booked
+            if (bookedSlots[i]) {
+                slot.classList.add("booked");
+                slot.dataset.status = "booked";
+                slot.style.cursor = "not-allowed";
+                slot.title = "Booked by: " + bookedSlots[i].fullName;
+            } else {
+                slot.classList.add("available");
+                slot.dataset.status = "available";
+                slot.title = "Click to book";
+            }
+
+            slot.onclick = function () {
+                handleSlotClick(slot, parseInt(i));
+            };
+
+            container.appendChild(slot);
+            slots.push(slot);
+        }
+
+        updateInfo();
+    }
+
+    function handleSlotClick(slotElement, slotNumber) {
+        if (slotElement.dataset.status === "available") {
+            // Redirect to personal details form
+            window.location.href = 'personal-details.html?slot=' + slotNumber;
+        } else {
+            // Show booking details if already booked
+            const bookedSlots = JSON.parse(localStorage.getItem('bookedSlots') || '{}');
+            const booking = bookedSlots[slotNumber];
+            if (booking) {
+                alert('This slot is already booked by:\n\nName: ' + booking.fullName + 
+                      '\nCar: ' + booking.carModel + 
+                      '\nLicense Plate: ' + booking.licensePlate + 
+                      '\nBooked Date: ' + booking.bookingDate +
+                      '\nBooked At: ' + booking.bookedAt);
+            }
+        }
+    }
+
+    function toggleSlot(slot) {
+        if (slot.dataset.status === "available") {
+            slot.classList.remove("available");
+            slot.classList.add("booked");
+            slot.dataset.status = "booked";
+        } else {
+            slot.classList.remove("booked");
+            slot.classList.add("available");
+            slot.dataset.status = "available";
+        }
+
+        updateInfo();
+    }
+
+    function updateInfo() {
+        const available = slots.filter(s => s.dataset.status === "available").length;
+        const booked = totalSlots - available;
+
+        document.getElementById("totalSlots").innerText = totalSlots;
+        document.getElementById("availableSlots").innerText = available;
+        document.getElementById("bookedSlots").innerText = booked;
+    }
+
+    function resetSlots() {
+        if (confirm('Are you sure you want to reset all bookings? This cannot be undone.')) {
+            localStorage.removeItem('bookedSlots');
+            localStorage.removeItem('parkingBookings');
+            createSlots();
+        }
+    }
+</script>
+
+</body>
+</html>
